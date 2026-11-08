@@ -1,0 +1,23 @@
+name: Build macOS preview
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Core checks
+        run: swift run ishot-checks
+      - name: Build universal DMG
+        run: ./scripts/package.sh universal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ishot-macos-preview
+          path: |
+            dist/*.dmg
+            dist/*.sha256
