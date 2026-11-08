@@ -14,7 +14,7 @@ func unwrap<T>(_ value: T?) throws -> T { guard let value else { throw MissingVa
 
 @main struct Runner {
     static func main() {
-        let geometry = GeometryTests(), images = ImageDocumentTests()
+        let geometry = GeometryTests(), images = ImageDocumentTests(), selection = SelectionTests()
         let checks: [(String, () throws -> Void)] = [
             ("reverse drag", geometry.testReverseDrag),
             ("Retina mapping", geometry.testRetinaSelection),
@@ -34,7 +34,18 @@ func unwrap<T>(_ value: T?) throws -> T { guard let value else { throw MissingVa
             ("invalid crop", images.testInvalidCropLeavesDocumentUntouched),
             ("PNG roundtrip", images.testPNGCanBeDecodedWithoutLosingPixels),
             ("bounded history", images.testHistoryIsBounded),
-            ("all annotation tools", images.testAllDrawingToolsRender)
+            ("all annotation tools", images.testAllDrawingToolsRender),
+            ("Option first click latches two-point mode", selection.testOptionLatchesUntilSecondClick),
+            ("default two-point reverse corners", selection.testDefaultTwoPointAndReverseCorners),
+            ("all diagonal directions", selection.testAllCornerDirections),
+            ("click jitter keeps first anchor", selection.testClickJitterDoesNotComplete),
+            ("drag compatibility in both modes", selection.testDirectDragStillWorksInBothModes),
+            ("Delete preserves temporary mode", selection.testDeleteKeepsTemporaryMode),
+            ("retry invalid second point", selection.testInvalidSecondPointCanBeRetried),
+            ("move and resize finalized selection", selection.testFinalSelectionCanMoveAndResize),
+            ("selection stays within its display", selection.testPreviewStaysWithinDisplay),
+            ("magnifier Retina and edge sampling", selection.testMagnifierEdgesAndRetinaMapping),
+            ("selection preference persistence", selection.testPreferenceRoundTripAndInvalidValueFallback)
         ]
         for (name, check) in checks {
             let before = failures

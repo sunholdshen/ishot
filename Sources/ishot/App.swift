@@ -145,7 +145,7 @@ import ScreenCaptureKit
     private func smokeTest() {
         let image = makeDemoImage()
         edit(image); addPin(image); addPin(image)
-        openSettings(); openWelcome()
+        openSettings(); settings?.present(tab: "截图"); openWelcome()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
             precondition(editors.count == 1 && pins.count == 2)
             let pin = pins.values.first!; let old = pin.window!.frame.width
@@ -177,27 +177,14 @@ import ScreenCaptureKit
                 snapshot(welcome?.window?.contentView, "welcome.png")
                 snapshot(settings?.window?.contentView, "settings.png")
                 snapshot(pin.window?.contentView, "pin.png")
-                let selection = SelectionView(frame: CGRect(x: 0, y: 0, width: 1000, height: 640), image: image)
-                let panel = KeyPanel(contentRect: selection.frame, styleMask: [.borderless], backing: .buffered, defer: false)
-                panel.isReleasedWhenClosed = false; panel.contentView = selection
-                func mouse(_ type: NSEvent.EventType, _ x: CGFloat, _ y: CGFloat) -> NSEvent {
-                    NSEvent.mouseEvent(with: type, location: CGPoint(x: x, y: 640 - y), modifierFlags: [], timestamp: 0, windowNumber: panel.windowNumber, context: nil, eventNumber: 1, clickCount: 1, pressure: 1)!
-                }
-                selection.mouseDown(with: mouse(.leftMouseDown, 40, 110))
-                selection.mouseDragged(with: mouse(.leftMouseDragged, 800, 450))
-                selection.mouseUp(with: mouse(.leftMouseUp, 800, 450))
-                precondition(selection.selection == CGRect(x: 40, y: 110, width: 760, height: 340))
-                selection.mouseDown(with: mouse(.leftMouseDown, 200, 200))
-                selection.mouseDragged(with: mouse(.leftMouseDragged, 220, 220))
-                selection.mouseUp(with: mouse(.leftMouseUp, 220, 220))
-                precondition(selection.selection == CGRect(x: 60, y: 130, width: 760, height: 340))
-                selection.mouseDown(with: mouse(.leftMouseDown, 820, 470))
-                selection.mouseDragged(with: mouse(.leftMouseDragged, 800, 450))
-                selection.mouseUp(with: mouse(.leftMouseUp, 800, 450))
-                precondition(selection.selection == CGRect(x: 60, y: 130, width: 740, height: 320))
-                snapshot(selection, "selection.png")
-                panel.close()
+
             }
+            let arguments = ProcessInfo.processInfo.arguments
+            let outputDirectory: URL?
+            if let index = arguments.firstIndex(of: "--output"), arguments.count > index + 1 {
+                outputDirectory = URL(fileURLWithPath: arguments[index + 1]).deletingLastPathComponent()
+            } else { outputDirectory = nil }
+            runSelectionChecks(image: image, outputDirectory: outputDirectory)
             print("SMOKE PASS: editor, 2 pins, zoom, lock, opacity, hide/show, settings, welcome, undo/redo responder routing, duplicate shortcuts, PNG export")
             if let index = ProcessInfo.processInfo.arguments.firstIndex(of: "--output"), ProcessInfo.processInfo.arguments.count > index + 1, CGPreflightScreenCaptureAccess() {
                 let directory = URL(fileURLWithPath: ProcessInfo.processInfo.arguments[index + 1]).deletingLastPathComponent()

@@ -4,7 +4,7 @@
 
 [简体中文](README.md) · **English**
 
-[Download v0.1.0](https://github.com/sunholdshen/ishot/releases/download/v0.1.0/ishot-0.1.0-universal.dmg) · [All releases](https://github.com/sunholdshen/ishot/releases) · [Report an issue](https://github.com/sunholdshen/ishot/issues)
+[Download v0.2.0](https://github.com/sunholdshen/ishot/releases/download/v0.2.0/ishot-0.2.0-universal.dmg) · [All releases](https://github.com/sunholdshen/ishot/releases) · [Report an issue](https://github.com/sunholdshen/ishot/issues)
 
 > **Preview release.** Requires macOS 14 or later. The universal installer contains Apple Silicon and Intel binaries; runtime testing has only been performed on Apple Silicon. The app is ad-hoc signed, **not Developer ID signed or notarized by Apple**. macOS may block the first launch. This independent project is published by [sunholdshen](https://github.com/sunholdshen) and is not affiliated with other products named iShot. **The app UI is currently in Simplified Chinese; English documentation does not imply an English UI.**
 
@@ -18,7 +18,7 @@ Capture a code snippet, design reference, or table, then pin it above ordinary w
 
 | Area | Available in this preview |
 |---|---|
-| Capture | Region capture and full capture of the display under the pointer; frozen selection, movement, corner resizing |
+| Capture | Region / display capture; drag or two-point selection, pixel magnifier, movement, corner resizing |
 | Annotations | Rectangle, ellipse, arrow, pen, text, opaque cover; color and stroke width |
 | Editing | Crop, up to 50 undo / redo steps, source-resolution PNG export |
 | **Floating images** | Multiple independent pins, dragging, scroll / trackpad zoom, opacity, position and size lock, further annotations |
@@ -28,11 +28,11 @@ Capture a code snippet, design reference, or table, then pin it above ordinary w
 
 ## Download and install
 
-1. [Download the universal DMG](https://github.com/sunholdshen/ishot/releases/download/v0.1.0/ishot-0.1.0-universal.dmg). To install the app, choose the `.dmg`, not GitHub's automatically generated Source code archives.
+1. [Download the universal DMG](https://github.com/sunholdshen/ishot/releases/download/v0.2.0/ishot-0.2.0-universal.dmg). To install the app, choose the `.dmg`, not GitHub's automatically generated Source code archives.
 2. Open it and drag **ishot.app** to **Applications**.
 3. Launch from Applications. Find the viewfinder icon in the top menu bar; the app does not keep a Dock icon.
 4. Click **开始截图** (Start capture) and grant **Screen Recording** permission when macOS asks. Quit and reopen the app if capture still fails after authorization.
-5. Drag to select an area. Press **P** to pin it immediately or **Enter** to annotate it.
+5. Drag a region, or **Option-click the first corner**, release Option, move the pointer, and click the opposite corner. Press **P** to pin or **Enter** to annotate.
 
 ### If macOS blocks the first launch
 
@@ -42,10 +42,10 @@ If your device policy prevents this, build from source instead. See the [English
 
 ### Verify the download
 
-Download both the DMG and its `.sha256` file from the [v0.1.0 release](https://github.com/sunholdshen/ishot/releases/tag/v0.1.0), put them in the same directory, and run:
+Download both the DMG and its `.sha256` file from the [v0.2.0 release](https://github.com/sunholdshen/ishot/releases/tag/v0.2.0), put them in the same directory, and run:
 
 ```sh
-shasum -a 256 -c ishot-0.1.0-universal.dmg.sha256
+shasum -a 256 -c ishot-0.2.0-universal.dmg.sha256
 ```
 
 The result should be `OK`. A checksum verifies file integrity; it is not Apple notarization.
@@ -57,6 +57,25 @@ The result should be `OK`. A checksum verifies file integrity; it is not Apple n
 Choose **区域截图** (Region capture) from the menu bar, then drag a selection. Move it or adjust its corners before choosing annotate, copy, save, pin, or cancel. Full-display capture opens the annotation editor.
 
 Select a drawing tool and drag on the image. For text, click the image and enter your annotation. The cover tool uses fully opaque pixels; PNG export replaces the covered source pixels. Cropping flattens existing annotations, but undoing the crop restores them.
+
+### Two-point selection for trackpads
+
+After entering region capture, choose either way to start:
+
+- **Temporary mode:** hold Option (⌥) and click the first corner. You can release Option immediately after the first click.
+- **Default mode:** open **设置 → 截图 → 默认框选方式** (Settings → Capture → Default selection method) and choose **双点** (Two-point). Then the first click needs no modifier.
+
+Once the first point is anchored, move the pointer freely. Lift and reposition your fingers as often as needed; a live rectangle follows the pointer with no timeout between clicks. The second click fixes the selection and reveals the toolbar. It **does not automatically save, copy, or pin** the image.
+
+- Use two separate clicks, not a double-click. Any pair of diagonal corners works.
+- **Delete** clears the first point so you can choose again; **Esc** cancels the capture.
+- A nearby magnifier displays source pixels and repositions near screen edges.
+- After confirmation, move the region or resize its corners, then press **P** to pin or use the toolbar.
+- A second point producing a width or height smaller than 2 display points is ignored; choose a valid opposite corner.
+- Direct dragging still works in two-point mode. Drag is the initial default. An Option-click changes only the current capture session, not the saved preference.
+- Both points must be on the same display. Return to the first point's display to finish or cancel.
+
+![Two-point selection with an anchored first corner and live preview](docs/images/two-point-preview.png)
 
 ### Work with pins
 
@@ -75,6 +94,7 @@ Select a drawing tool and drag on the image. For text, click the image and enter
 | Capture a region | ⌘⇧⌥3 |
 | Capture the display under the pointer | ⌘⇧⌥4 |
 | Show / hide all pins | ⌘⇧⌥P |
+| Temporary two-point mode / reset first point | ⌥ + click / Delete |
 | Selection: pin / annotate / copy / save / cancel | P / Enter / C / S / Esc |
 | Editor: undo / redo | ⌘Z / ⇧⌘Z |
 | Editor: copy / save / pin | ⌘C / ⌘S / ⌘P |
@@ -99,7 +119,7 @@ xcode-select --install  # Skip if already installed
 git clone https://github.com/sunholdshen/ishot.git
 cd ishot
 
-# Run 19 core checks without XCTest
+# Run 30 core checks without XCTest
 swift run ishot-checks
 
 # Build dist/ishot.app for the current architecture
@@ -122,7 +142,7 @@ Optional checks:
 
 ## Validation and limitations
 
-On an Apple Silicon Mac, the app passed 19 core checks, window operation checks, a real capture check, light / dark UI review, and DMG verification. The detailed [validation record](docs/QA.md) is currently in Chinese.
+On an Apple Silicon Mac, the app passed 30 core checks, window operation checks, a real capture check, light / dark UI review, and DMG verification. The detailed [validation record](docs/QA.md) is currently in Chinese.
 
 - Each region capture is limited to one display; there is no cross-display stitching. Full capture uses the display under the pointer.
 - Capture excludes ishot's own windows, including existing pins.

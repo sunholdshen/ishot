@@ -1,12 +1,14 @@
-# Install ishot 0.1.0
+# Install ishot 0.2.0
 
 Requires macOS 14 or later. The universal DMG includes both Apple Silicon and Intel binaries; runtime testing has only been performed on Apple Silicon. The app UI is currently in Simplified Chinese.
 
-1. Download `ishot-0.1.0-universal.dmg` from https://github.com/sunholdshen/ishot/releases/tag/v0.1.0.
+1. Download `ishot-0.2.0-universal.dmg` from https://github.com/sunholdshen/ishot/releases/tag/v0.2.0.
 2. Open the DMG and drag `ishot.app` into Applications.
 3. Open ishot from Applications. Look for its viewfinder icon in the top menu bar.
 4. Click “开始截图” (Start capture), then allow Screen Recording permission. If capture still fails, quit and reopen ishot after granting permission.
-5. Drag a region and press P to pin, Enter to annotate, C to copy, S to save, or Esc to cancel.
+5. Drag a region, or Option-click the first corner, release Option, move freely, and click the opposite corner. Once confirmed, press P to pin, Enter to annotate, C to copy, S to save, or Esc to cancel.
+
+For no-modifier two-point capture, select “双点” in “设置 → 截图 → 默认框选方式” (Settings → Capture → Default selection method). There is no timeout between clicks; lift and reposition your fingers freely. Delete resets the first point. Both points must be on the same display.
 
 ## First launch and signing
 
@@ -16,7 +18,7 @@ Apple's official guide: https://support.apple.com/en-us/102445
 
 To check integrity, download the matching `.sha256` file next to the DMG and run:
 
-    shasum -a 256 -c ishot-0.1.0-universal.dmg.sha256
+    shasum -a 256 -c ishot-0.2.0-universal.dmg.sha256
 
 ## Shortcuts and pins
 

@@ -1,18 +1,20 @@
 import AppKit
 import ServiceManagement
+import IShotCore
 
 final class SettingsController: NSWindowController {
     private let hotKeys: HotKeyManager
     private let directory = NSTextField(labelWithString: "")
     private let login = NSButton(checkboxWithTitle: "登录 Mac 时启动 ishot", target: nil, action: nil)
     private let opacity = NSSlider(value: 100, minValue: 20, maxValue: 100, target: nil, action: nil)
+    private let selectionPicker = NSSegmentedControl()
     private var recorders: [ShortcutButton] = []
     init(hotKeys: HotKeyManager) {
         self.hotKeys = hotKeys
-        let window = NSWindow(contentRect: CGRect(x: 0, y: 0, width: 570, height: 390), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        let window = NSWindow(contentRect: CGRect(x: 0, y: 0, width: 570, height: 440), styleMask: [.titled, .closable], backing: .buffered, defer: false)
         window.title = "ishot · 设置"; window.isReleasedWhenClosed = false
         super.init(window: window); window.center()
-        let tabs = NSTabView(frame: CGRect(x: 20, y: 20, width: 530, height: 350)); tabs.autoresizingMask = [.width, .height]; window.contentView?.addSubview(tabs)
+        let tabs = NSTabView(frame: CGRect(x: 20, y: 20, width: 530, height: 400)); tabs.autoresizingMask = [.width, .height]; window.contentView?.addSubview(tabs)
         func tab(_ title: String, views: [NSView]) {
             let item = NSTabViewItem(identifier: title); item.label = title
             let container = NSView()
@@ -36,7 +38,16 @@ final class SettingsController: NSWindowController {
         }
         rows.append(label("需包含 ⌘ 或 ⌃；默认截图快捷键还包含 ⌥ 和 ⇧。")); tab("快捷键", views: rows)
         directory.stringValue = UserDefaults.standard.string(forKey: "saveDirectory") ?? "保存时选择目录"; directory.lineBreakMode = .byTruncatingMiddle
-        tab("截图", views: [label("PNG · 原始分辨率", bold: true), label("截图不会自动写入磁盘，点击“保存”时再选择文件。"), label("默认保存目录"), directory, actionButton("选择目录…", symbol: "folder", target: self, action: #selector(chooseDirectory))])
+        selectionPicker.segmentCount = 2
+        selectionPicker.setLabel("拖拽", forSegment: 0); selectionPicker.setLabel("双点", forSegment: 1)
+        selectionPicker.setWidth(100, forSegment: 0); selectionPicker.setWidth(100, forSegment: 1)
+        selectionPicker.selectedSegment = SelectionMethod.saved() == .twoPoint ? 1 : 0
+        selectionPicker.target = self; selectionPicker.action = #selector(changeSelectionMethod)
+        tab("截图", views: [label("默认框选方式", bold: true), selectionPicker,
+            label("双点：单击两个对角，无需持续拖拽或按键。\n拖拽模式下，⌥ + 单击可临时启用双点。\nDelete 重选第一点，Esc 取消。"),
+            label("PNG 保留原始像素 · 点击保存时才写入文件"),
+            label("默认保存目录"), directory,
+            actionButton("选择目录…", symbol: "folder", target: self, action: #selector(chooseDirectory))])
         if UserDefaults.standard.object(forKey: "pinOpacity") != nil { opacity.doubleValue = UserDefaults.standard.double(forKey: "pinOpacity") * 100 }
         opacity.target = self; opacity.action = #selector(changeOpacity); opacity.widthAnchor.constraint(equalToConstant: 340).isActive = true
         tab("贴图", views: [label("新贴图默认透明度", bold: true), opacity, label("20% ← → 100%"), label("滚轮 / 双指缩放：调整大小\nOption + 滚轮：调整透明度\n双击：恢复原始尺寸\n右键：锁定、批注、保存和关闭\n贴图跟随桌面空间，位于普通窗口上方。")])
@@ -45,7 +56,10 @@ final class SettingsController: NSWindowController {
     private func label(_ text: String, bold: Bool = false) -> NSTextField {
         let field = NSTextField(wrappingLabelWithString: text); field.font = .systemFont(ofSize: bold ? 16 : 13, weight: bold ? .semibold : .regular); return field
     }
-    func present() {
+    func present(tab: String? = nil) {
+        if let tab, let tabs = window?.contentView?.subviews.compactMap({ $0 as? NSTabView }).first {
+            tabs.selectTabViewItem(withIdentifier: tab)
+        }
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         showWindow(nil); NSApp.activate(ignoringOtherApps: true); window?.makeKeyAndOrderFront(nil)
     }
@@ -64,6 +78,9 @@ final class SettingsController: NSWindowController {
         let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.canCreateDirectories = true
         if panel.runModal() == .OK, let url = panel.url { UserDefaults.standard.set(url.path, forKey: "saveDirectory"); directory.stringValue = url.path }
     }
+    @objc private func changeSelectionMethod() {
+        (selectionPicker.selectedSegment == 1 ? SelectionMethod.twoPoint : .drag).save()
+    }
     @objc private func permissions() { CaptureCoordinator.openPermissions() }
     @objc private func changeOpacity() { UserDefaults.standard.set(opacity.doubleValue / 100, forKey: "pinOpacity") }
 }
@@ -80,7 +97,7 @@ final class WelcomeController: NSWindowController {
         let title = NSTextField(labelWithString: "把参考，钉在眼前。"); title.font = .systemFont(ofSize: 34, weight: .bold)
         let subtitle = NSTextField(wrappingLabelWithString: "截取屏幕、轻松批注，再把图片放在最需要的位置。\n所有图片只在本机处理。")
         subtitle.font = .systemFont(ofSize: 15); subtitle.textColor = .secondaryLabelColor
-        let steps = NSTextField(wrappingLabelWithString: "①  点击开始截图，允许屏幕录制权限\n②  拖动选择区域，按 P 直接钉住\n③  拖动贴图摆放，滚轮缩放，右键查看更多操作")
+        let steps = NSTextField(wrappingLabelWithString: "①  点击开始截图，允许屏幕录制权限\n②  拖动框选，或 ⌥ 单击开始双点框选；P 钉住\n③  拖动贴图摆放，滚轮缩放，右键查看更多操作")
         steps.font = .systemFont(ofSize: 14)
         let buttons = NSStackView(views: [actionButton("开始截图", symbol: "viewfinder", target: self, action: #selector(capture)), actionButton("试用示例图", symbol: "pin", target: self, action: #selector(demo))]); buttons.spacing = 12
         let note = NSTextField(wrappingLabelWithString: "应用常驻屏幕顶部菜单栏。首次授权后如无法截图，请重新打开。\n退出应用时，未保存的贴图会丢失。")

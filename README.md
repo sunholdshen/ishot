@@ -4,7 +4,7 @@
 
 **简体中文** · [English](README.en.md)
 
-[下载 v0.1.0 安装包](https://github.com/sunholdshen/ishot/releases/download/v0.1.0/ishot-0.1.0-universal.dmg) · [全部发布版本](https://github.com/sunholdshen/ishot/releases) · [反馈问题](https://github.com/sunholdshen/ishot/issues)
+[下载 v0.2.0 安装包](https://github.com/sunholdshen/ishot/releases/download/v0.2.0/ishot-0.2.0-universal.dmg) · [全部发布版本](https://github.com/sunholdshen/ishot/releases) · [反馈问题](https://github.com/sunholdshen/ishot/issues)
 
 > **预览版**：要求 macOS 14 或更新版本。安装包包含 Apple 芯片和 Intel 架构，仅在 Apple 芯片 Mac 上完成运行验证。使用 ad-hoc 本地签名，**没有 Developer ID 签名和 Apple 公证**，首次打开可能被 macOS 拦截。本项目由 [sunholdshen](https://github.com/sunholdshen) 发布，与已有同名 iShot 产品无关联。当前应用界面为简体中文，英文支持目前指文档。
 
@@ -18,7 +18,7 @@
 
 | 模块 | 已实现 |
 |---|---|
-| 截图 | 区域截图、鼠标所在显示器全屏截图；冻结画面、移动选区、调整四角 |
+| 截图 | 区域 / 全屏截图；拖拽或双点框选、像素放大镜、移动选区、调整四角 |
 | 批注 | 矩形、椭圆、箭头、画笔、文字、不透明遮挡；颜色和粗细 |
 | 编辑 | 裁剪，最多 50 步撤销 / 重做；保留原始像素导出 PNG |
 | **悬浮贴图** | 多张独立贴图、拖动、滚轮 / 触控板缩放、透明度、锁定、继续批注 |
@@ -28,11 +28,11 @@
 
 ## 下载与安装
 
-1. [下载 Universal DMG](https://github.com/sunholdshen/ishot/releases/download/v0.1.0/ishot-0.1.0-universal.dmg)。如果只想安装软件，请下载 `.dmg`，不是 GitHub 自动生成的 Source code 压缩包。
+1. [下载 Universal DMG](https://github.com/sunholdshen/ishot/releases/download/v0.2.0/ishot-0.2.0-universal.dmg)。如果只想安装软件，请下载 `.dmg`，不是 GitHub 自动生成的 Source code 压缩包。
 2. 打开 DMG，将 **ishot.app** 拖入 **Applications（应用程序）**。
 3. 从 Applications 启动。应用常驻屏幕顶部的取景框菜单栏图标，不常驻 Dock。
 4. 点击“开始截图”，按系统提示允许**屏幕录制**。若授权后仍无法截图，请退出并重新打开应用。
-5. 拖动选取区域，按 **P** 直接钉住，按 **Enter** 进入批注。
+5. 拖动选取区域，或按住 **Option 单击第一个角**，松开按键后移动指针，再单击另一个角。按 **P** 钉住，按 **Enter** 批注。
 
 ### 首次打开被系统拦截
 
@@ -42,10 +42,10 @@
 
 ### 校验下载文件
 
-在 [v0.1.0 Release](https://github.com/sunholdshen/ishot/releases/tag/v0.1.0) 同时下载 DMG 和同名 `.sha256` 文件，将它们放在同一目录，运行：
+在 [v0.2.0 Release](https://github.com/sunholdshen/ishot/releases/tag/v0.2.0) 同时下载 DMG 和同名 `.sha256` 文件，将它们放在同一目录，运行：
 
 ```sh
-shasum -a 256 -c ishot-0.1.0-universal.dmg.sha256
+shasum -a 256 -c ishot-0.2.0-universal.dmg.sha256
 ```
 
 应显示 `OK`。校验值用于验证文件完整性，不代表 Apple 公证。
@@ -57,6 +57,25 @@ shasum -a 256 -c ishot-0.1.0-universal.dmg.sha256
 从菜单栏选择“区域截图”，拖动选框，选中后可以移动选区或拖动四角调整大小。工具栏提供批注、复制、保存、钉住和取消。全屏截图会打开批注编辑器，再按需复制、保存或钉住。
 
 编辑器中选择工具后拖动绘制；文字工具点击图片后输入文字。遮挡工具绘制完全不透明的色块，PNG 导出会覆盖原来的像素。裁剪会合成已有批注，但可以撤销裁剪来恢复。
+
+### 双点框选：为触控板减少持续拖拽
+
+进入区域截图后，有两种启用方式：
+
+- **临时使用**：按住 Option（⌥）单击第一个角。第一点确定后立即可以松开 Option。
+- **设为默认**：打开“设置 → 截图 → 默认框选方式”，选择“双点”。此后直接单击第一个角即可。
+
+第一点固定后，自由移动指针；你可以反复抬手、重新放置手指，矩形始终跟随指针预览，没有两次点击的时间限制。第二次单击固定选区，显示操作工具栏，**不会自动保存、复制或钉住**。
+
+- 两次独立单击，不是双击。任意两个对角均可，不要求先左上再右下。
+- **Delete** 撤回第一点并重新选择；**Esc** 取消本次截图。
+- 光标旁的放大镜显示原始截图像素，屏幕边缘会自动调整显示位置。
+- 确认后仍可拖动选区、调整四角；按 **P** 钉住，或用工具栏复制、保存、批注。
+- 两次点击太接近、宽度或高度小于 2 个屏幕点时，继续等待有效的第二点。
+- 双点模式也支持直接按下拖动；拖拽仍是初始默认值。临时 Option 操作只影响当前截图，不改变保存的默认设置。
+- 两个点必须位于同一显示器；第一点在另一块屏幕时，请回到该屏幕完成或取消。
+
+![双点框选：第一点固定后自由移动指针](docs/images/two-point-preview.png)
 
 ### 贴图
 
@@ -75,6 +94,7 @@ shasum -a 256 -c ishot-0.1.0-universal.dmg.sha256
 | 区域截图 | ⌘⇧⌥3 |
 | 当前显示器全屏截图 | ⌘⇧⌥4 |
 | 显示 / 隐藏全部贴图 | ⌘⇧⌥P |
+| 临时双点框选 / 撤回第一点 | ⌥ + 单击 / Delete |
 | 选区：钉住 / 批注 / 复制 / 保存 / 取消 | P / Enter / C / S / Esc |
 | 编辑器：撤销 / 重做 | ⌘Z / ⇧⌘Z |
 | 编辑器：复制 / 保存 / 钉住 | ⌘C / ⌘S / ⌘P |
@@ -99,7 +119,7 @@ xcode-select --install  # 已安装命令行开发工具时可跳过
 git clone https://github.com/sunholdshen/ishot.git
 cd ishot
 
-# 运行 19 项核心检查（不依赖 XCTest）
+# 运行 30 项核心检查（不依赖 XCTest）
 swift run ishot-checks
 
 # 生成当前架构的 dist/ishot.app
@@ -122,7 +142,7 @@ swift run ishot-checks
 
 ## 验证范围与已知限制
 
-已在 Apple 芯片 Mac 上通过 19 项核心检查、窗口操作检查、真实截图、浅色 / 深色界面检查和 DMG 校验。详见 [验证记录](docs/QA.md)。
+已在 Apple 芯片 Mac 上通过 30 项核心检查、窗口操作检查、真实截图、浅色 / 深色界面检查和 DMG 校验。详见 [验证记录](docs/QA.md)。
 
 - 单次区域截图限定在一个显示器中，不跨屏拼接；全屏截图针对鼠标所在显示器。
 - 截图排除 ishot 自身窗口，包括已有贴图。
